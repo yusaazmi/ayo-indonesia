@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\MatchScheduleController;
+use App\Http\Controllers\Api\MatchResultController;
 
 // Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -33,4 +34,8 @@ Route::group(['middleware' => ['auth:sanctum', 'role:admin'], 'prefix' => 'admin
     Route::apiResource('match-schedules', MatchScheduleController::class);
     Route::put('match-schedules/{id}/restore', [MatchScheduleController::class, 'restore'])->name('match-schedules.restore');
     Route::delete('match-schedules/{id}/force-delete', [MatchScheduleController::class, 'forceDelete'])->name('match-schedules.forceDelete');
+    // match result management
+    Route::apiResource('match-results', MatchResultController::class);
+    Route::put('match-results/{id}/restore', [MatchResultController::class, 'restore'])->name('match-results.restore');
+    Route::delete('match-results/{id}/force-delete', [MatchResultController::class, 'forceDelete'])->name('match-results.forceDelete');
 });

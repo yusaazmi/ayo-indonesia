@@ -54,7 +54,7 @@ class MatchScheduleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'match_date' => 'required|date',
-            'match_time' => 'required|date_format:H:i',
+            'duration_minutes' => 'required|integer|min:1|max:90',
             'home_team_id' => 'required|exists:teams,id',
             'away_team_id' => 'required|exists:teams,id',
         ]);
@@ -65,7 +65,7 @@ class MatchScheduleController extends Controller
         try {
             $matchSchedule = MatchSchedule::create([
                 'match_date' => $request->match_date,
-                'match_time' => $request->match_time,
+                'duration_minutes' => $request->duration_minutes,
                 'home_team_id' => $request->home_team_id,
                 'away_team_id' => $request->away_team_id,
             ]);
@@ -104,7 +104,7 @@ class MatchScheduleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'match_date' => 'sometimes|required|date',
-            'match_time' => 'sometimes|required|date_format:H:i',
+            'duration_minutes' => 'sometimes|required|integer|min:1|max:90',
             'home_team_id' => 'sometimes|required|exists:teams,id',
             'away_team_id' => 'sometimes|required|exists:teams,id',
             'is_completed' => 'sometimes|required|in:0,1',
@@ -121,7 +121,7 @@ class MatchScheduleController extends Controller
 
         try {
             $matchSchedule->match_date = $request->input('match_date', $matchSchedule->match_date);
-            $matchSchedule->match_time = $request->input('match_time', $matchSchedule->match_time);
+            $matchSchedule->duration_minutes = $request->input('duration_minutes', $matchSchedule->duration_minutes);
             $matchSchedule->home_team_id = $request->input('home_team_id', $matchSchedule->home_team_id);
             $matchSchedule->away_team_id = $request->input('away_team_id', $matchSchedule->away_team_id);
             $matchSchedule->is_completed = $request->input('is_completed', $matchSchedule->is_completed);

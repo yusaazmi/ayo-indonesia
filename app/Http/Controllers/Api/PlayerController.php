@@ -24,11 +24,7 @@ class PlayerController extends Controller
             ->where('name', 'like', '%' . $search . '%');
         $players = $query->paginate($perPage, ['*'], 'page', $page);
 
-        return response()->json([
-            'status' => 'success',
-            'code' => 200,
-            'data' => $players
-        ]);
+        return ResponseUtil::noticeResponse('success', 200, $players);
     }
 
     /**

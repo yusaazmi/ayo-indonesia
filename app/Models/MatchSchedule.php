@@ -16,10 +16,9 @@ class MatchSchedule extends Model
      */
     protected $fillable = [
         'match_date',
-        'match_time',
+        'duration_minutes',
         'home_team_id',
         'away_team_id',
-        'venue',
         'is_completed',
     ];
 
@@ -31,5 +30,10 @@ class MatchSchedule extends Model
     public function awayTeam()
     {
         return $this->belongsTo(Team::class, 'away_team_id');
+    }
+
+    public function matchResult()
+    {
+        return $this->hasOne(MatchResult::class, 'match_schedule_id');
     }
 }

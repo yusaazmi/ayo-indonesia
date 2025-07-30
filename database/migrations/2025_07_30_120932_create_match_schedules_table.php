@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('match_schedules', function (Blueprint $table) {
             $table->id();
-            $table->date('match_date');
-            $table->time('match_time');
+            $table->dateTime('match_date');
+            $table->unsignedBigInteger('duration_minutes')->default(90); // Duration in minutes, default is 90 for a standard match
             $table->unsignedBigInteger('home_team_id');
             $table->unsignedBigInteger('away_team_id');
             $table->tinyInteger('is_completed')->default(0); // 0 for not completed, 1 for completed
