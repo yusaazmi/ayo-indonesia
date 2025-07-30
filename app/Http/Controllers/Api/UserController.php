@@ -15,11 +15,11 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index($params = [])
+    public function index(Request $request)
     {
-        $search = $params['search'] ?? '';
-        $page = $params['page'] ?? 1;
-        $perPage = $params['perPage'] ?? 10;
+        $search = $request->input('search', '');
+        $page = $request->input('page', 1);
+        $perPage = $request->input('perPage', 10);
 
         $query = User::with('roles')
             ->where('name', 'like', '%' . $search . '%')
@@ -102,7 +102,7 @@ class UserController extends Controller
                 'password' => 'sometimes|required|string|min:6|confirmed',
                 'role_id' => 'sometimes|required|exists:roles,id',
             ]);
-            
+
             $user = User::findOrFail($id);
             $user->name = $request->name ?? $user->name;
             $user->email = $request->email ?? $user->email;
