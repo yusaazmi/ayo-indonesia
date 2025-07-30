@@ -23,7 +23,8 @@ class Player extends Model
         'player_number'
     ];
 
-    public function team(){
+    public function team()
+    {
         return $this->belongsTo(Team::class);
     }
 }
