@@ -25,4 +25,10 @@ class Team extends Model
     {
         return $this->hasMany(Player::class);
     }
+
+    public function matches()
+    {
+        return $this->hasMany(MatchSchedule::class, 'home_team_id')
+            ->orWhere('away_team_id', $this->id);
+    }
 }
