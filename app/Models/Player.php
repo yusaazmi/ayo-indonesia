@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Player extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
     /**
      * The attributes that are mass assignable.
      *
@@ -16,7 +17,6 @@ class Player extends Model
     protected $fillable = [
         'name',
         'position',
-        'number',
         'team_id',
         'height_cm',
         'weight_kg',
