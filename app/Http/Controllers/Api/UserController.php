@@ -60,11 +60,10 @@ class UserController extends Controller
             $role = Role::where('id', $request->role_id)->firstOrFail();
             $user->assignRole($role);
 
+            return ResponseUtil::noticeResponse('success', 200, $user);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('success', 200, $user);
     }
 
     /**
@@ -74,11 +73,11 @@ class UserController extends Controller
     {
         try {
             $user = User::with('roles')->findOrFail($id);
+
+            return ResponseUtil::noticeResponse('success', 200, $user);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse('User not found', 404);
         }
-
-        return ResponseUtil::noticeResponse('success', 200, $user);
     }
 
     /**
@@ -115,11 +114,10 @@ class UserController extends Controller
             }
             $user->save();
 
+            return ResponseUtil::noticeResponse('success', 200, $user);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('success', 200, $user);
     }
 
     /**
@@ -130,11 +128,11 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($id);
             $user->delete();
+
+            return ResponseUtil::noticeResponse('User deleted successfully', 200);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse('User not found', 404);
         }
-
-        return ResponseUtil::noticeResponse('User deleted successfully', 200);
     }
 
     public function restore(string $id)
@@ -142,11 +140,11 @@ class UserController extends Controller
         try {
             $user = User::withTrashed()->findOrFail($id);
             $user->restore();
+
+            return ResponseUtil::noticeResponse('User restored successfully', 200, $user);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse('User not found', 404);
         }
-
-        return ResponseUtil::noticeResponse('User restored successfully', 200, $user);
     }
 
     public function forceDelete(string $id)
@@ -154,10 +152,10 @@ class UserController extends Controller
         try {
             $user = User::withTrashed()->findOrFail($id);
             $user->forceDelete();
+
+            return ResponseUtil::noticeResponse('User permanently deleted', 200);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse('User not found', 404);
         }
-
-        return ResponseUtil::noticeResponse('User permanently deleted', 200);
     }
 }

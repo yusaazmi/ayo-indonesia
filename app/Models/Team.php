@@ -27,9 +27,13 @@ class Team extends Model
         return $this->hasMany(Player::class);
     }
 
-    public function matches()
+    public function homeMatchesSchedule()
     {
-        return $this->hasMany(MatchSchedule::class, 'home_team_id')
-            ->orWhere('away_team_id', $this->id);
+        return $this->hasMany(MatchSchedule::class, 'home_team_id');
+    }
+
+    public function awayMatchesSchedule()
+    {
+        return $this->hasMany(MatchSchedule::class, 'away_team_id');
     }
 }

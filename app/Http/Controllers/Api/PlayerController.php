@@ -62,13 +62,12 @@ class PlayerController extends Controller
                 'player_number' => $request->player_number,
                 'team_id' => $request->team_id,
                 'position' => $request->position,
-                'age' => $request->age,
             ]);
+
+            return ResponseUtil::noticeResponse('Player created successfully', 201, $player);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Player created successfully', 201, $player);
     }
 
     /**
@@ -105,7 +104,6 @@ class PlayerController extends Controller
             'weight_kg' => 'sometimes|required|integer|min:30|max:150',
             'player_number' => 'sometimes|required|integer|min:1|unique:players,player_number,' . $id,
             'position' => 'sometimes|required|string|max:100',
-            'age' => 'sometimes|required|integer|min:16|max:40',
         ]);
 
         if ($validator->fails()) {
@@ -118,12 +116,18 @@ class PlayerController extends Controller
         }
 
         try {
-            $player->update($request->only(['name', 'team_id', 'position', 'age']));
+            $player->name = $request->input('name', $player->name);
+            $player->team_id = $request->input('team_id', $player->team_id);
+            $player->height_cm = $request->input('height_cm', $player->height_cm);
+            $player->weight_kg = $request->input('weight_kg', $player->weight_kg);
+            $player->player_number = $request->input('player_number', $player->player_number);
+            $player->position = $request->input('position', $player->position);
+            $player->save();
+
+            return ResponseUtil::noticeResponse('Player updated successfully', 200, $player);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Player updated successfully', 200, $player);
     }
 
     /**
@@ -138,11 +142,11 @@ class PlayerController extends Controller
 
         try {
             $player->delete();
+
+            return ResponseUtil::noticeResponse('Player deleted successfully', 200);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Player deleted successfully', 200);
     }
     /**
      * Restore deleted player
@@ -156,11 +160,11 @@ class PlayerController extends Controller
 
         try {
             $player->restore();
+
+            return ResponseUtil::noticeResponse('Player restored successfully', 200, $player);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Player restored successfully', 200, $player);
     }
 
     /**
@@ -175,10 +179,10 @@ class PlayerController extends Controller
 
         try {
             $player->forceDelete();
+
+            return ResponseUtil::noticeResponse('Player permanently deleted successfully', 200);
         } catch (Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Player permanently deleted successfully', 200);
     }
 }

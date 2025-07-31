@@ -17,9 +17,24 @@ class MatchResultController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $search = $request->input('search', '');
+        $page = $request->input('page', 1);
+        $perPage = $request->input('perPage', 10);
+
+        $query = MatchResult::with(['matchSchedule.homeTeam', 'matchSchedule.awayTeam'])
+            ->whereHas('matchSchedule', function ($q) use ($search) {
+                $q->whereHas('homeTeam', function ($q2) use ($search) {
+                    $q2->where('name', 'like', '%' . $search . '%');
+                })->orWhereHas('awayTeam', function ($q3) use ($search) {
+                    $q3->where('name', 'like', '%' . $search . '%');
+                });
+            });
+
+        $results = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return ResponseUtil::noticeResponse('success', 200, $results);
     }
 
     /**
@@ -93,36 +108,36 @@ class MatchResultController extends Controller
      */
     public function show(string $id)
     {
-        try {
-            $matchResult = MatchResult::with(['matchSchedule', 'winningTeam', 'matchScorers.player'])->findOrFail($id);
+        $matchResult = MatchResult::with(['matchSchedule', 'winningTeam', 'matchScorers.player'])->find($id);
 
-            $totalWinningHomeTeam = MatchResult::where('winning_team_id', $matchResult->matchSchedule->home_team_id)->count();
-            $totalWinningAwayTeam = MatchResult::where('winning_team_id', $matchResult->matchSchedule->away_team_id)->count();
-            $matchResult->total_winning_home_team = $totalWinningHomeTeam;
-            $matchResult->total_winning_away_team = $totalWinningAwayTeam;
-
-            $topScorer = MatchScorer::where('match_result_id', $matchResult->id)
-                ->selectRaw('player_id, COUNT(*) as total_goals')
-                ->groupBy('player_id')
-                ->where('is_own_goal', 0)
-                ->orderByDesc('total_goals')
-                ->first();
-            
-            if ($topScorer) {
-                $topScorerPlayer = Player::find($topScorer->player_id);
-                $matchResult->top_scorer = [
-                    'player_id' => $topScorerPlayer->id,
-                    'name' => $topScorerPlayer->name,
-                    'total_goals' => $topScorer->total_goals,
-                ];
-            } else {
-                $matchResult->top_scorer = null;
-            }
-
-            return ResponseUtil::noticeResponse('Match result retrieved successfully', 200, $matchResult);
-        } catch (Exception $e) {
-            return ResponseUtil::errorResponse($e->getMessage(), 404);
+        if (!$matchResult) {
+            return ResponseUtil::errorResponse('Match result not found', 404);
         }
+
+        $totalWinningHomeTeam = MatchResult::where('winning_team_id', $matchResult->matchSchedule->home_team_id)->count();
+        $totalWinningAwayTeam = MatchResult::where('winning_team_id', $matchResult->matchSchedule->away_team_id)->count();
+        $matchResult->total_winning_home_team = $totalWinningHomeTeam;
+        $matchResult->total_winning_away_team = $totalWinningAwayTeam;
+
+        $topScorer = MatchScorer::where('match_result_id', $matchResult->id)
+            ->selectRaw('player_id, COUNT(*) as total_goals')
+            ->groupBy('player_id')
+            ->where('is_own_goal', 0)
+            ->orderByDesc('total_goals')
+            ->first();
+        
+        if ($topScorer) {
+            $topScorerPlayer = Player::find($topScorer->player_id);
+            $matchResult->top_scorer = [
+                'player_id' => $topScorerPlayer->id,
+                'name' => $topScorerPlayer->name,
+                'total_goals' => $topScorer->total_goals,
+            ];
+        } else {
+            $matchResult->top_scorer = null;
+        }
+
+        return ResponseUtil::noticeResponse('Match result retrieved successfully', 200, $matchResult);
     }
 
     /**
