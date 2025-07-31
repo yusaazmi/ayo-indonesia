@@ -61,11 +61,11 @@ class TeamController extends Controller
                 'address' => $request->address,
                 'city' => $request->city,
             ]);
+
+            return ResponseUtil::noticeResponse('Team created successfully', 201, $team);
         } catch (\Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Team created successfully', 201, $team);
     }
 
     /**
@@ -73,7 +73,8 @@ class TeamController extends Controller
      */
     public function show(string $id)
     {
-        $team = Team::find($id);
+        $team = Team::with(['players', 'homeMatchesSchedule', 'awayMatchesSchedule'])->find($id);
+        $team->total_matches = $team->homeMatchesSchedule->count() + $team->awayMatchesSchedule->count();
 
         if (!$team) {
             return ResponseUtil::errorResponse('Team not found', 404);
@@ -118,11 +119,11 @@ class TeamController extends Controller
             $team->address = $request->address;
             $team->city = $request->city;
             $team->save();
+
+            return ResponseUtil::noticeResponse('Team updated successfully', 200, $team);
         } catch (\Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Team updated successfully', 200, $team);
     }
 
     /**
@@ -138,11 +139,11 @@ class TeamController extends Controller
 
         try {
             $team->delete();
+
+            return ResponseUtil::noticeResponse('Team deleted successfully', 200);
         } catch (\Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Team deleted successfully', 200);
     }
 
     /**
@@ -176,11 +177,11 @@ class TeamController extends Controller
             $path = $file->storeAs('logos', time() . '.' . $file->getClientOriginalExtension(), 'public');
             $team->logo = Storage::url($path);
             $team->save();
+
+            return ResponseUtil::noticeResponse('Logo uploaded successfully', 200, ['logo' => $team->logo]);
         } catch (\Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Logo uploaded successfully', 200, ['logo' => $team->logo]);
     }
 
     /**
@@ -196,11 +197,11 @@ class TeamController extends Controller
 
         try {
             $team->restore();
+
+            return ResponseUtil::noticeResponse('Team restored successfully', 200, $team);
         } catch (\Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Team restored successfully', 200, $team);
     }
 
     /**
@@ -220,11 +221,10 @@ class TeamController extends Controller
                 Storage::disk('public')->delete($logoPath);
             }
             $team->forceDelete();
+
+            return ResponseUtil::noticeResponse('Team permanently deleted', 200);
         } catch (\Exception $e) {
             return ResponseUtil::errorResponse($e->getMessage(), 500);
         }
-
-        return ResponseUtil::noticeResponse('Team permanently deleted', 200);
     }
-
 }
